@@ -1,0 +1,13 @@
+{
+  "name": "google-sheets",
+  "version": "1.0.0",
+  "description": "A Node.js application to interact with Google Sheets API",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "googleapis": "^134.0.0"
+  }
+}
