@@ -1,4 +1,5 @@
-const http = require("http");
+const express = require("express");
+const app = express();
 const bodyParser = require("body-parser");
 const { google } = require("googleapis");
 
@@ -8,9 +9,7 @@ const jsonParser = bodyParser.json();
 // Define your endpoint handler function
 const handleSubscribeRequest = async (req, res) => {
   if (req.method !== "POST") {
-    return res
-      .writeHead(405)
-      .end(JSON.stringify({ message: "Only POST requests allowed" }));
+    return res.status(405).json({ message: "Only POST requests allowed" });
   }
 
   const GOOGLE_SHEET_ID = "1Jxtsu-Mksm4rlg7N3-ZkEytw8WGyXaLOD3AOD4ief40";
@@ -35,8 +34,8 @@ const handleSubscribeRequest = async (req, res) => {
     });
 
     const sheets = google.sheets({
-      auth,
       version: "v4",
+      auth: await auth.getClient(),
     });
 
     const response = await sheets.spreadsheets.values.append({
@@ -48,39 +47,21 @@ const handleSubscribeRequest = async (req, res) => {
       },
     });
 
-    return res.writeHead(201).end(
-      JSON.stringify({
-        data: response.data,
-      })
-    );
+    return res.status(201).json({ data: response.data });
   } catch (e) {
     console.error("Error:", e);
     console.error("Error Message:", e.message);
-    return res.writeHead(500).end(JSON.stringify({ message: e.message }));
+    return res.status(500).json({ message: e.message });
   }
 };
 
-// Create HTTP server
-const server = http.createServer(function (req, res) {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-
-  // Check the request URL and call the appropriate handler
-  if (req.url === "/googlesheets/" && req.method === "POST") {
-    // Use jsonParser middleware to parse JSON bodies
-    jsonParser(req, res, function () {
-      handleSubscribeRequest(req, res);
-    });
-  } else if (req.url === "/" && req.method === "GET") {
-    var message = "It works!\n",
-      version = "NodeJS " + process.versions.node + "\n",
-      response = [message, version].join("\n");
-    res.end(response);
-  } else {
-    res.writeHead(404).end("Not Found");
-  }
+app.get("/", (req, res) => {
+  res.send("Express on Vercel");
 });
 
-// Start listening on a port
-server.listen(8000, function () {
-  console.log("Server is listening on port 8000");
+app.post("/googlesheets", jsonParser, handleSubscribeRequest);
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
