@@ -65,12 +65,12 @@ const server = http.createServer(function (req, res) {
   res.writeHead(200, { "Content-Type": "text/plain" });
 
   // Check the request URL and call the appropriate handler
-  if (req.url === "/googlesheets/api/subscribe/" && req.method === "POST") {
+  if (req.url === "/googlesheets/" && req.method === "POST") {
     // Use jsonParser middleware to parse JSON bodies
     jsonParser(req, res, function () {
       handleSubscribeRequest(req, res);
     });
-  } else if (req.url === "/googlesheets/" && req.method === "GET") {
+  } else if (req.url === "/" && req.method === "GET") {
     var message = "It works!\n",
       version = "NodeJS " + process.versions.node + "\n",
       response = [message, version].join("\n");
